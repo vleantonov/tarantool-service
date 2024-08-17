@@ -1,0 +1,174 @@
+openapi: 3.0.0
+info:
+  title: Tarantool API
+  version: 1.0.0
+paths:
+
+  /api/login:
+    post:
+      summary: Авторизация пользователя и получение токена
+      requestBody:
+        $ref: "#/components/requestBodies/LoginRequestBody"
+      responses:
+        '200':
+          description: Пользователь авторизован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        '400':
+          description: Неверные данные
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/write:
+    post:
+      summary: Запись данных в tarantool
+      requestBody:
+        $ref: "#/components/requestBodies/WriteRequestBody"
+
+      responses:
+        '201':
+          description: Данные успешно записаны
+        '400':
+          description: Неверные данные
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: Токен недействителен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/read:
+    get:
+      summary: Чтение данных из tarantool
+      responses:
+        '200':
+          description: Данные успешно прочитаны
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadResponse"
+
+        '404':
+          description: Ни один ключ не найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadResponse"
+
+        '401':
+          description: Токен недействителен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        '400':
+          description: Неверные данные
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+
+components:
+  requestBodies:
+    LoginRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              login:
+                nullable: false
+                type: string
+                description: Логин пользователя
+              password:
+                nullable: false
+                type: string
+                description: Пароль пользователя
+
+    WriteRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - data
+            properties:
+              data:
+                type: object
+                additionalProperties: true
+                description: Данные для записи в tarantool
+
+    ReadRequestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - keys
+            properties:
+              keys:
+                type: array
+                items:
+                  type: string
+                description: Ключи для чтения из tarantool
+
+  schemas:
+    LoginResponse:
+      description: Токен пользователя
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+
+    ReadResponse:
+      description: Данные из tarantool
+      type: object
+      properties:
+        data:
+          type: object
+          additionalProperties: true
+          description: Данные из tarantool в формате ключ-значение
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string

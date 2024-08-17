@@ -1,0 +1,41 @@
+version: '3.7'
+services:
+
+
+  tarantool_api:
+    image: banner_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    restart: "on-failure"
+    networks:
+      - banner-net
+
+  tarantool:
+    image: banner_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      banner:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    env_file:
+      - ../.env
+    networks:
+      - banner-net
+    restart: "on-failure"
+    command: [ "./worker" ]
+
+volumes:
+  postgres_data:
+  rabbitmq-data:
+
+networks:
+  banner-net:
+    driver: bridge
+    name: banner-net
