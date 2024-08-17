@@ -15,7 +15,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -ldflags="-s -w" -o /app/banner ./cmd/tarantool_api/main.go
+RUN go build -ldflags="-s -w" -o /app/tarantool_api ./cmd/tarantool_api/main.go
 
 FROM alpine
 
@@ -31,7 +31,5 @@ ENV APP_HOST=0.0.0.0
 COPY --from=builder /app /app
 
 WORKDIR /app
-
-COPY --from=builder /build/migrations ./migrations
 
 CMD ./tarantool_api

@@ -14,8 +14,14 @@ check_env_file:
 env:
 	cp .env.example .env
 
-run: check_env_file
+local-run: check_env_file
 	go run cmd/tarantool_api/main.go
+
+run: check_env_file
+	docker compose -f deployment/docker-compose.yml up -d --remove-orphans
+
+image-build:
+	docker build -f ./build/Dockerfile -t tarantool_api:latest .
 
 test: check_env_file
 	go test ./...

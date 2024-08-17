@@ -16,7 +16,7 @@ type Config struct {
 type StorageConfig struct {
 	TarantoolAddress        string        `env:"TARANTOOL_ADDRESS" env-required:"true"`
 	TarantoolUsername       string        `env:"TARANTOOL_USER_NAME" env-required:"true"`
-	TarantoolPassword       string        `env:"TARANTOOL_PASSWORD" env-required:"true"`
+	TarantoolPassword       string        `env:"TARANTOOL_USER_PASSWORD" env-required:"true"`
 	TarantoolRequestTimeout time.Duration `env:"TARANTOOL_REQUEST_TIMEOUT" env-required:"true"`
 }
 

@@ -1,8 +1,7 @@
 version: '3.7'
 services:
-
   tarantool_api:
-    image: banner_app
+    image: tarantool_api
     depends_on:
       tarantool:
         condition: service_healthy
@@ -19,13 +18,13 @@ services:
     env_file:
       - ../.env
     networks:
-      - banner-net
+      - tarantool-net
     restart: "on-failure"
 
 volumes:
   tarantool-data:
 
 networks:
-  banner-net:
+  tarantool-net:
     driver: bridge
     name: tarantool-net
