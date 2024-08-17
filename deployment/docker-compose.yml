@@ -17,6 +17,9 @@ services:
     image: tarantool/tarantool
     env_file:
       - ../.env
+    volumes:
+      - ../init:/opt/tarantool
+    command: ['tarantool', '/opt/tarantool/init.lua']
     networks:
       - tarantool-net
     restart: "on-failure"
