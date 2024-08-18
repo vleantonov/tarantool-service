@@ -65,7 +65,7 @@ func New() *App {
 	// Endpoints
 	server.POST("/api/login", handler.Login)
 	dataRouter.POST("write", handler.WriteData)
-	dataRouter.POST("read", nil)
+	dataRouter.POST("read", handler.ReadData)
 
 	return &App{
 		config: conf,

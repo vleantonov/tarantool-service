@@ -17,7 +17,7 @@ local users = box.schema.create_space('users', { format = {
 
 
 users:create_index('primary', { parts = { 'username' }, if_not_exists = true })
-users:upsert({ 'admin', '' }, {{ '=', 2, 'presale' }})
+users:upsert({ 'admin', 'presale' }, {{ '=', 2, 'presale' }})
 
 -- Create data space --
 local data = box.schema.create_space('data', { format = {

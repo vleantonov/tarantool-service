@@ -4,20 +4,23 @@ import (
 	"context"
 	"github.com/tarantool/go-tarantool/v2"
 	"golang.org/x/sync/errgroup"
+	"sync"
 	"time"
 	"vk_tarantool_project/internal/domain"
 )
 
 const (
-	userSpaceName    = "users"
-	userSpaceIndexPK = "pk"
-	dataSpaceName    = "data"
-	dataSpaceIndexPK = "pk"
+	userSpaceName      = "users"
+	userSpaceIndexPK   = "primary"
+	dataSpaceName      = "data"
+	dataSpaceIndexPK   = "primary"
+	dataSpaceIndexHash = "hash_key"
 )
 
 type Tarantool struct {
 	conn       *tarantool.Connection
 	reqTimeout time.Duration
+	mu         sync.Mutex
 }
 
 // New create new repository for data manipulating in Tarantool DBMS
@@ -92,4 +95,59 @@ func (t *Tarantool) WriteData(ctx context.Context, data domain.Data) error {
 	}
 
 	return nil
+}
+
+func (t *Tarantool) ReadData(ctx context.Context, keys domain.DataKeys) (domain.Data, error) {
+
+	var resultData domain.Data
+	resultData.Data = make(map[string]interface{})
+
+	// Error group for errors handling in goroutine
+	g, gctx := errgroup.WithContext(ctx)
+
+	// Start select each field in the request
+	for _, key := range keys.Keys {
+		key := key
+		g.Go(func() error {
+
+			// Timeout limits the time it takes to complete a request
+			reqTimeoutCtx, cancel := context.WithTimeout(gctx, t.reqTimeout)
+			defer cancel()
+
+			// Select query with key data
+			data, err := t.conn.Do(
+				tarantool.NewSelectRequest(dataSpaceName).
+					Context(reqTimeoutCtx).
+					Limit(1).
+					Index(dataSpaceIndexHash).
+					Iterator(tarantool.IterEq).
+					Key([]interface{}{key}),
+			).Get()
+
+			if err != nil {
+				return err
+			}
+
+			// If no data found, return without error
+			// and don't update key in resultData
+			if len(data) == 0 {
+				return nil
+			}
+
+			// Update key in resultData if data found
+			t.mu.Lock()
+			// TODO: Исправить работу с map
+			resultData.Data[key] = data[0].([]interface{})[1]
+			t.mu.Unlock()
+
+			return nil
+		})
+	}
+
+	// Check error from goroutine
+	if err := g.Wait(); err != nil {
+		return resultData, err
+	}
+
+	return resultData, nil
 }

@@ -8,18 +8,20 @@ import (
 
 // ReadData handler for get data from storage by Keys
 func (h *Handler) ReadData(c echo.Context) error {
-	var data domain.Data
-	statusResponseBody := map[string]string{"status": "success"}
+	var keys domain.DataKeys
 
-	if err := c.Bind(&data); err != nil {
+	if err := c.Bind(&keys); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	if err := h.service.WriteData(c.Request().Context(), data); err != nil {
-		statusResponseBody["status"] = "error"
-		c.Logger().Errorf("Error saving data: %v", err)
-		return c.JSON(http.StatusInternalServerError, statusResponseBody)
+	data, err := h.service.ReadData(
+		c.Request().Context(),
+		keys,
+	)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusCreated, statusResponseBody)
+	return c.JSON(http.StatusOK, data)
 }
