@@ -16,8 +16,8 @@ local users = box.schema.create_space('users', { format = {
 }, if_not_exists = true })
 
 
-users:create_index('pk', { parts = {'username'}, if_not_exists = true })
-users:insert{ 'admin', 'presale' }
+users:create_index('primary', { parts = { 'username' }, if_not_exists = true })
+users:upsert({ 'admin', '' }, {{ '=', 2, 'presale' }})
 
 -- Create data space --
 local data = box.schema.create_space('data', { format = {
@@ -25,4 +25,5 @@ local data = box.schema.create_space('data', { format = {
     { name = 'value' }
 }, if_not_exists = true })
 
-data:create_index('pk', { parts = { 'key' }, if_not_exists = true, type = 'HASH' })
+data:create_index('primary', { parts = { 'key' }, if_not_exists = true })
+data:create_index('hash_key', { parts = { 'key' }, if_not_exists = true, type = 'HASH' })
