@@ -9,6 +9,8 @@ import (
 	"vk_tarantool_project/internal/domain"
 )
 
+// TODO: Придерживаться принципу DRY
+
 const (
 	userSpaceName      = "users"
 	userSpaceIndexPK   = "primary"
@@ -80,7 +82,10 @@ func (t *Tarantool) WriteData(ctx context.Context, data domain.Data) error {
 				tarantool.
 					NewUpsertRequest(dataSpaceName).
 					Context(reqTimeoutCtx).
-					Tuple([]interface{}{key, val}),
+					Tuple([]interface{}{key, val}).
+					Operations(
+						tarantool.NewOperations().Assign(1, val),
+					),
 			).Get(); err != nil {
 				return err
 			}
@@ -135,7 +140,6 @@ func (t *Tarantool) ReadData(ctx context.Context, keys domain.DataKeys) (map[int
 
 			// Update key in resultData if data found
 			t.mu.Lock()
-			// TODO: Исправить работу с map
 			resultData[key] = data[0].([]interface{})[1]
 			t.mu.Unlock()
 
