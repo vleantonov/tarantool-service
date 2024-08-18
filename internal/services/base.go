@@ -4,6 +4,7 @@ import (
 	"context"
 	"vk_tarantool_project/internal/config"
 	"vk_tarantool_project/internal/domain"
+	"vk_tarantool_project/internal/pkg/jsonMap"
 	"vk_tarantool_project/internal/pkg/jwt"
 )
 
@@ -14,7 +15,7 @@ type UserRepository interface {
 // TODO: Сделать указатели
 type DataRepository interface {
 	WriteData(ctx context.Context, data domain.Data) error
-	ReadData(ctx context.Context, keys domain.DataKeys) (domain.Data, error)
+	ReadData(ctx context.Context, keys domain.DataKeys) (map[interface{}]interface{}, error)
 }
 
 type Service struct {
@@ -59,6 +60,12 @@ func (s *Service) WriteData(ctx context.Context, data domain.Data) error {
 }
 
 func (s *Service) ReadData(ctx context.Context, keys domain.DataKeys) (domain.Data, error) {
+	var resData domain.Data
+
 	data, err := s.drep.ReadData(ctx, keys)
-	return data, err
+	if err != nil {
+		return resData, err
+	}
+	resData.Data, err = jsonMap.ConvertMapToObj(data)
+	return resData, err
 }

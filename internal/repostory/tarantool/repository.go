@@ -97,10 +97,9 @@ func (t *Tarantool) WriteData(ctx context.Context, data domain.Data) error {
 	return nil
 }
 
-func (t *Tarantool) ReadData(ctx context.Context, keys domain.DataKeys) (domain.Data, error) {
+func (t *Tarantool) ReadData(ctx context.Context, keys domain.DataKeys) (map[interface{}]interface{}, error) {
 
-	var resultData domain.Data
-	resultData.Data = make(map[string]interface{})
+	resultData := make(map[interface{}]interface{})
 
 	// Error group for errors handling in goroutine
 	g, gctx := errgroup.WithContext(ctx)
@@ -137,7 +136,7 @@ func (t *Tarantool) ReadData(ctx context.Context, keys domain.DataKeys) (domain.
 			// Update key in resultData if data found
 			t.mu.Lock()
 			// TODO: Исправить работу с map
-			resultData.Data[key] = data[0].([]interface{})[1]
+			resultData[key] = data[0].([]interface{})[1]
 			t.mu.Unlock()
 
 			return nil
