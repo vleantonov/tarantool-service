@@ -9,8 +9,6 @@ import (
 	"vk_tarantool_project/internal/domain"
 )
 
-// TODO: Придерживаться принципу DRY
-
 const (
 	userSpaceName      = "users"
 	userSpaceIndexPK   = "primary"
