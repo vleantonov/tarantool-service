@@ -38,8 +38,8 @@ func New() *App {
 		log.Fatal(err)
 	}
 
-	repo := tarantoolRepo.New(connDB)
-	service := services.New(conf, repo)
+	repo := tarantoolRepo.New(connDB, conf.TarantoolRequestTimeout)
+	service := services.New(conf, repo, repo)
 	handler := handlers.New(service)
 
 	// Create base echo server
@@ -64,7 +64,7 @@ func New() *App {
 
 	// Endpoints
 	server.POST("/api/login", handler.Login)
-	dataRouter.POST("write", nil)
+	dataRouter.POST("write", handler.WriteData)
 	dataRouter.POST("read", nil)
 
 	return &App{
@@ -80,7 +80,7 @@ func (a *App) Run() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
 
-	// Start application server in gorutine
+	// Start application server in goroutine
 	go func() {
 		if err := a.server.Start(
 			fmt.Sprintf("%s:%d", a.config.Host, a.config.Port),
@@ -120,7 +120,8 @@ func getTarantoolConn(conf *config.Config) (*tarantool.Connection, error) {
 	}
 
 	opts := tarantool.Opts{
-		Timeout: conf.TarantoolRequestTimeout,
+		Reconnect:     10 * time.Second,
+		MaxReconnects: 5,
 	}
 
 	return tarantool.Connect(ctx, dialer, opts)

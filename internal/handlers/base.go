@@ -7,6 +7,8 @@ import (
 
 type Service interface {
 	Login(ctx context.Context, info domain.UserInfo) (string, error)
+	WriteData(ctx context.Context, data domain.Data) error
+	ReadData(ctx context.Context, keys domain.DataKeys) (domain.Data, error)
 }
 
 type Handler struct {
