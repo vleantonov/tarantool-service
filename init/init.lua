@@ -25,5 +25,4 @@ local data = box.schema.create_space('data', { format = {
     { name = 'value' }
 }, if_not_exists = true })
 
-data:create_index('primary', { parts = { 'key' }, if_not_exists = true })
-data:create_index('hash_key', { parts = { 'key' }, if_not_exists = true, type = 'HASH' })
+data:create_index('primary', { parts = { 'key' }, if_not_exists = true, type = 'HASH' })

@@ -26,6 +26,7 @@ type App struct {
 
 // New Create app instance with new config and echo Server
 // TODO: Посмотреть валидаторы
+// TODO: Заменить стандартный ответ на 400 кастомным
 func New() *App {
 
 	conf, err := config.Load()

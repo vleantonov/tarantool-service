@@ -25,3 +25,5 @@ image-build:
 
 test: check_env_file
 	go test ./...
+
+deploy: image-build run

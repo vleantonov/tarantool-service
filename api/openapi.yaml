@@ -22,6 +22,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: Неверные данные для входа
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         '500':
           description: Внутренняя ошибка сервера
           content:
@@ -64,13 +70,6 @@ paths:
       responses:
         '200':
           description: Данные успешно прочитаны
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReadResponse"
-
-        '404':
-          description: Ни один ключ не найден
           content:
             application/json:
               schema:

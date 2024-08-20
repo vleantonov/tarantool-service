@@ -10,11 +10,10 @@ import (
 )
 
 const (
-	userSpaceName      = "users"
-	userSpaceIndexPK   = "primary"
-	dataSpaceName      = "data"
-	dataSpaceIndexPK   = "primary"
-	dataSpaceIndexHash = "hash_key"
+	userSpaceName    = "users"
+	userSpaceIndexPK = "primary"
+	dataSpaceName    = "data"
+	dataSpaceIndex   = "primary"
 )
 
 type Tarantool struct {
@@ -121,7 +120,7 @@ func (t *Tarantool) ReadData(ctx context.Context, keys domain.DataKeys) (map[int
 				tarantool.NewSelectRequest(dataSpaceName).
 					Context(reqTimeoutCtx).
 					Limit(1).
-					Index(dataSpaceIndexHash).
+					Index(dataSpaceIndex).
 					Iterator(tarantool.IterEq).
 					Key([]interface{}{key}),
 			).Get()

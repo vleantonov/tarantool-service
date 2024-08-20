@@ -16,6 +16,10 @@ func (h *Handler) WriteData(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
+	if len(data.Data) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, domain.ErrDataRequired)
+	}
+
 	if err := h.service.WriteData(c.Request().Context(), data); err != nil {
 		statusResponseBody["status"] = "error"
 		c.Logger().Errorf("Error saving data: %v", err)
